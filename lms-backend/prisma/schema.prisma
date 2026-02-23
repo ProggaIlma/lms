@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -19,14 +13,135 @@ enum Role {
   INSTRUCTOR
   STUDENT
 }
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
 
-model User {
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+}
+model User 
+{
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
   password  String
   role      Role
   isActive  Boolean  @default(true)
+
+  createdEnrollments Enrollment[] @relation("EnrollmentCreatedBy")
+  updatedEnrollments Enrollment[] @relation("EnrollmentUpdatedBy")
+  studentEnrollments Enrollment[] @relation("EnrollmentStudent")
+
+ instructorCourses Course[] @relation("InstructorCourses")
+ createdCourses  Course[] @relation("CreatedByCourses")
+  updatedCourses Course[] @relation("UpdatedByCourses")
+
+   lessonCreatedBy Lesson[] @relation("LessonCreatedBy")
+  lessonUpdatedBy Lesson[] @relation("LessonUpdatedBy")
+  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  categoryCourses Course[] @relation("CategoryCourses")
+
+
+  createdBy String?
+  updatedBy String?
+}
+
+model Course 
+{
+  id          String        @id @default(uuid())
+  title       String
+  description String
+  thumbnail   String?
+  price       Float         @default(0)
+  isFree      Boolean       @default(true)
+  status      CourseStatus  @default(DRAFT)
+  isDeleted   Boolean       @default(false)
+
+  instructor   User    @relation("InstructorCourses",fields: [instructorId], references: [id])
+  instructorId String
+
+  category   Category? @relation("CategoryCourses",fields: [categoryId], references: [id])
+  categoryId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdById String?
+  createdBy   User?  @relation("CreatedByCourses", fields: [createdById], references: [id])
+  updatedById String?
+
+  updatedBy User? @relation("UpdatedByCourses",fields: [updatedById], references: [id])
+  // Lessons & Enrollments
+  lessons     Lesson[]
+  enrollments Enrollment[]
+
+  @@index([title])
+  @@index([instructorId])
+  @@index([status])
+  @@index([isDeleted])
+}
+
+model Lesson 
+{
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  videoUrl  String?
+  order     Int
+  isPreview Boolean  @default(false)
+
+  course   Course @relation(fields: [courseId], references: [id])
+  courseId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdBy   User?  @relation("LessonCreatedBy", fields: [createdById], references: [id])
+  createdById String?
+
+
+  updatedBy User? @relation("LessonUpdatedBy",fields: [updatedById], references: [id])
+  updatedById String?
+  @@index([courseId])
+  @@index([order])
+}
+
+model Enrollment {
+  id         String           @id @default(uuid())
+  status     EnrollmentStatus @default(ACTIVE)
+  enrolledAt DateTime         @default(now())
+
+  student   User   @relation("EnrollmentStudent",fields: [studentId], references: [id])
+  studentId String
+
+  course   Course @relation(fields: [courseId], references: [id])
+  courseId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdById String?
+  createdBy   User?  @relation("EnrollmentCreatedBy", fields: [createdById], references: [id])
+  updatedById String?
+
+  updatedBy User? @relation("EnrollmentUpdatedBy",fields: [updatedById], references: [id])
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
 }
