@@ -7,6 +7,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { TableSkeleton } from "@/components/ui/Skeleton";
 import axiosInstance from "@/lib/axios";
+import { toast } from "react-hot-toast/headless";
 
 type Role = "SUPER_ADMIN" | "ADMIN" | "INSTRUCTOR" | "STUDENT";
 
@@ -30,7 +31,6 @@ export default function UsersPage() {
   const [users, setUsers]           = useState<User[]>([]);
   const [total, setTotal]           = useState(0);
   const [isLoading, setIsLoading]   = useState(false);
-  const [error, setError]           = useState<string | null>(null);
   const [search, setSearch]         = useState("");
   const [roleFilter, setRoleFilter] = useState<Role | "">("");
   const [page, setPage]             = useState(1);
@@ -42,7 +42,8 @@ export default function UsersPage() {
 
   const loadUsers = useCallback(async () => {
     setIsLoading(true);
-    setError(null);
+   
+    toast.dismiss(); 
     try {
       const params: Record<string, any> = { page, limit };
       if (debouncedSearch) params.search = debouncedSearch;
@@ -53,7 +54,8 @@ export default function UsersPage() {
       setTotal(data.pagination?.total ?? data.total ?? 0);
       setTotalPages(data.pagination?.totalPages ?? Math.ceil((data.total ?? 0) / limit));
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to fetch users");
+        toast.error(err.response?.data?.message || "Failed to fetch users");
+
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +72,7 @@ export default function UsersPage() {
         prev.map((u) => u.id === user.id ? { ...u, isActive: !u.isActive } : u)
       );
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to update user");
+      toast.error(err.response?.data?.message || "Failed to update user");
     } finally {
       setActionLoading(null);
     }
@@ -86,12 +88,7 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Error */}
-      {error && (
-        <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-          {error}
-        </div>
-      )}
+     
 
       {/* Filters */}
       <div className="bg-white rounded-xl border border-surface-200 p-4 flex flex-wrap gap-3">

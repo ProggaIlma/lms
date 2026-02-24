@@ -6,6 +6,7 @@ import { formatDate } from "@/utils/formatters";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { toast } from "react-hot-toast/headless";
 
 type EnrollmentStatus = "ACTIVE" | "COMPLETED" | "DROPPED";
 
@@ -35,13 +36,12 @@ const statusBadge: Record<EnrollmentStatus, "success" | "neutral" | "danger"> = 
 export default function MyCoursesPage() {
   const [enrollments, setEnrollments]   = useState<Enrollment[]>([]);
   const [isLoading, setIsLoading]       = useState(true);
-  const [error, setError]               = useState<string | null>(null);
   const [updatingId, setUpdatingId]     = useState<string | null>(null);
 
   useEffect(() => {
     enrollmentApi.getMyEnrollments()
       .then((res) => setEnrollments(res.data))
-      .catch(() => setError("Failed to load enrollments"))
+      .catch(() => toast.error("Failed to load enrollments"))
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -53,7 +53,7 @@ export default function MyCoursesPage() {
         prev.map((e) => e.id === enrollmentId ? { ...e, status: "DROPPED" } : e)
       );
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to update");
+        toast.error(err.response?.data?.message || "Failed to update enrollment");
     } finally {
       setUpdatingId(null);
     }
@@ -76,11 +76,7 @@ export default function MyCoursesPage() {
         <p className="text-sm text-surface-500 mt-0.5">{enrollments.length} enrolled courses</p>
       </div>
 
-      {error && (
-        <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-          {error}
-        </div>
-      )}
+     
 
       {enrollments.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-xl border border-surface-200">

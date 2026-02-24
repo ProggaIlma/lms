@@ -9,11 +9,11 @@ import { formatCurrency } from "@/utils/formatters";
 import { TableSkeleton } from "@/components/ui/Skeleton";
 import CourseStatusBadge from "@/components/course/CourseStatusBadge";
 import Button from "@/components/ui/Button";
+import { toast } from "react-hot-toast/headless";
 
 export default function BrowseCoursesPage() {
   const [courses, setCourses]         = useState<Course[]>([]);
   const [isLoading, setIsLoading]     = useState(false);
-  const [error, setError]             = useState<string | null>(null);
   const [search, setSearch]           = useState("");
   const [enrollingId, setEnrollingId] = useState<string | null>(null);
   const [enrolled, setEnrolled]       = useState<Set<string>>(new Set());
@@ -25,7 +25,7 @@ export default function BrowseCoursesPage() {
 
   const loadCourses = useCallback(async () => {
     setIsLoading(true);
-    setError(null);
+    toast.dismiss();
     try {
       const res = await courseApi.getAll({
         search: debouncedSearch || undefined,
@@ -37,7 +37,7 @@ export default function BrowseCoursesPage() {
       setTotalPages(res.pagination.totalPages);
       setTotal(res.pagination.total);
     } catch (err: any) {
-      setError("Failed to load courses");
+      toast.error(err.response?.data?.message || "Failed to load courses");
     } finally {
       setIsLoading(false);
     }
@@ -56,12 +56,12 @@ export default function BrowseCoursesPage() {
 
   const handleEnroll = async (courseId: string) => {
     setEnrollingId(courseId);
-    setError(null);
+    toast.dismiss();
     try {
       await enrollmentApi.enroll(courseId);
 setEnrolled((prev) => new Set([...Array.from(prev), courseId]));
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to enroll");
+      toast.error(err.response?.data?.message || "Failed to enroll");
     } finally {
       setEnrollingId(null);
     }
@@ -75,12 +75,7 @@ setEnrolled((prev) => new Set([...Array.from(prev), courseId]));
         <p className="text-sm text-surface-500 mt-0.5">{total} courses available</p>
       </div>
 
-      {/* Error */}
-      {error && (
-        <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-          {error}
-        </div>
-      )}
+     
 
       {/* Search */}
       <div className="bg-white rounded-xl border border-surface-200 p-4">

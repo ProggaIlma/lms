@@ -11,14 +11,14 @@ import { Category } from "@/types/category.types";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Image from "next/image";
+import toast from "react-hot-toast";
 
 export default function CreateCoursePage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [categories, setCategories]       = useState<Category[]>([]);
-  const [isLoading, setIsLoading]         = useState(false);
-  const [error, setError]                 = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
@@ -48,7 +48,7 @@ export default function CreateCoursePage() {
 
   const onSubmit = async (data: CourseFormData) => {
     setIsLoading(true);
-    setError(null);
+    toast.dismiss();
     try {
       await courseApi.create({
         ...data,
@@ -56,7 +56,7 @@ export default function CreateCoursePage() {
       });
       router.push("/instructor/courses");
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to create course");
+      toast.error(err.response?.data?.message || "Failed to create course");
     } finally {
       setIsLoading(false);
     }
@@ -69,12 +69,6 @@ export default function CreateCoursePage() {
         <p className="text-sm text-surface-500 mt-0.5">Fill in the details to create a new course</p>
       </div>
 
-      {error && (
-        <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-          {error}
-        </div>
-      )}
-
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* Thumbnail */}
         <div className="bg-white rounded-xl border border-surface-200 p-6 space-y-4">
@@ -85,12 +79,7 @@ export default function CreateCoursePage() {
           >
             {thumbnailPreview ? (
               <div className="relative h-48 w-full">
-                <Image
-                  src={thumbnailPreview}
-                  alt="Thumbnail preview"
-                  fill
-                  className="object-cover"
-                />
+                <Image src={thumbnailPreview} alt="Thumbnail preview" fill className="object-cover" />
                 <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                   <p className="text-white text-sm font-semibold">Change image</p>
                 </div>
@@ -98,41 +87,30 @@ export default function CreateCoursePage() {
             ) : (
               <div className="h-48 flex flex-col items-center justify-center gap-2 text-surface-400">
                 <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
                 </svg>
                 <p className="text-sm font-medium">Click to upload thumbnail</p>
                 <p className="text-xs">PNG, JPG, WebP up to 5MB</p>
               </div>
             )}
           </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={handleThumbnailChange}
-            className="hidden"
-          />
+          <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleThumbnailChange} className="hidden" />
         </div>
 
         {/* Basic Info */}
         <div className="bg-white rounded-xl border border-surface-200 p-6 space-y-4">
           <h3 className="font-display font-semibold text-surface-900">Basic Info</h3>
 
-          <Input
-            label="Course title"
-            placeholder="e.g. Complete React Developer Course"
-            error={errors.title?.message}
-            {...register("title")}
-          />
+          <Input label="Course title" placeholder="e.g. Complete React Developer Course" error={errors.title?.message} {...register("title")} />
 
           <div>
             <label className="label">Description</label>
-            <textarea
-              rows={4}
-              placeholder="What will students learn in this course?"
-              className={`input resize-none ${errors.description ? "input-error" : ""}`}
-              {...register("description")}
-            />
+            <textarea rows={4} placeholder="What will students learn in this course?" className={`input resize-none ${errors.description ? "input-error" : ""}`} {...register("description")} />
             {errors.description && <p className="error-msg">{errors.description.message}</p>}
           </div>
 
@@ -141,7 +119,9 @@ export default function CreateCoursePage() {
             <select className="input" {...register("categoryId")}>
               <option value="">Select a category</option>
               {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
               ))}
             </select>
           </div>
@@ -165,15 +145,7 @@ export default function CreateCoursePage() {
               This is a free course
             </label>
           </div>
-          {!isFree && (
-            <Input
-              label="Price (USD)"
-              type="number"
-              placeholder="29.99"
-              error={errors.price?.message}
-              {...register("price", { valueAsNumber: true })}
-            />
-          )}
+          {!isFree && <Input label="Price (USD)" type="number" placeholder="29.99" error={errors.price?.message} {...register("price", { valueAsNumber: true })} />}
         </div>
 
         <div className="flex justify-end gap-3">

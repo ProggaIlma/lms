@@ -15,6 +15,7 @@ import Modal from "@/components/ui/Modal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { Skeleton } from "@/components/ui/Skeleton";
 import Image from "next/image";
+import { toast } from "react-hot-toast";
 
 export default function EditCoursePage() {
   const { id }  = useParams() as { id: string };
@@ -25,7 +26,6 @@ export default function EditCoursePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading]   = useState(true);
   const [isSaving, setIsSaving]     = useState(false);
-  const [error, setError]           = useState<string | null>(null);
   const [success, setSuccess]       = useState<string | null>(null);
 
   // Thumbnail
@@ -92,7 +92,8 @@ export default function EditCoursePage() {
           isFree:      c.isFree,
         });
       } catch (err: any) {
-        setError("Failed to load course");
+ 
+        toast.error(err.response?.data?.message || "Failed to load course");
       } finally {
         setIsLoading(false);
       }
@@ -110,7 +111,7 @@ export default function EditCoursePage() {
   // Save course
   const onSaveCourse = async (data: CourseFormData) => {
     setIsSaving(true);
-    setError(null);
+    toast.dismiss();
     setSuccess(null);
     try {
       await courseApi.update(id, {
@@ -120,7 +121,7 @@ export default function EditCoursePage() {
       setSuccess("Course updated successfully");
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to update course");
+      toast.error(err.response?.data?.message || "Failed to update course");
     } finally {
       setIsSaving(false);
     }
@@ -158,7 +159,7 @@ export default function EditCoursePage() {
       setIsLessonModalOpen(false);
       resetLesson();
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to save lesson");
+      toast.error(err.response?.data?.message || "Failed to save lesson");
     } finally {
       setLessonLoading(false);
     }
@@ -178,7 +179,7 @@ export default function EditCoursePage() {
       setIsConfirmOpen(false);
       setIsDeletingLesson(null);
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to delete lesson");
+      toast.error(err.response?.data?.message || "Failed to delete lesson");
     } finally {
       setLessonLoading(false);
     }
@@ -205,12 +206,7 @@ export default function EditCoursePage() {
         <Button variant="secondary" onClick={() => router.back()}>Back</Button>
       </div>
 
-      {/* Error / Success */}
-      {error && (
-        <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-          {error}
-        </div>
-      )}
+     
       {success && (
         <div className="px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-600">
           {success}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { analyticsApi } from "@/lib/api/analytics.api";
 import { formatCurrency, formatNumber } from "@/utils/formatters";
+import toast from "react-hot-toast";
 
 interface InstructorStats {
   totalCourses:  number;
@@ -20,12 +21,12 @@ interface InstructorStats {
 export default function InstructorAnalyticsPage() {
   const [stats, setStats]       = useState<InstructorStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError]         = useState<string | null>(null);
+  
 
   useEffect(() => {
     analyticsApi.getInstructorStats()
       .then((res) => setStats(res.data))
-      .catch(() => setError("Failed to load analytics"))
+      .catch(() => toast.error("Failed to load analytics"))
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -38,11 +39,7 @@ export default function InstructorAnalyticsPage() {
         <p className="text-indigo-200 text-sm mt-1">Track your courses and revenue</p>
       </div>
 
-      {error && (
-        <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-          {error}
-        </div>
-      )}
+     
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
