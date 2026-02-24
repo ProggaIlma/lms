@@ -1,8 +1,8 @@
 export type Role = "SUPER_ADMIN" | "ADMIN" | "INSTRUCTOR" | "STUDENT";
 
 export interface User {
-  id: string;       // ✅ what backend sends
-  userId: string;   // ✅ what JWT has
+  id: string;       
+  userId: string;   
   name: string;
   email: string;
   role: Role;

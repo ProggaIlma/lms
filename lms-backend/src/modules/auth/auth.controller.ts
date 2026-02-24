@@ -1,7 +1,7 @@
 import { login, register } from "./auth.service";
 import { Request, Response } from "express";
 import { RegisterDTO, LoginDTO } from "./auth.dto";
-
+import { findUserById } from "./auth.repository";
 import { Role } from "@prisma/client";
 import { AuthRequest } from "@middlewares/auth.middleware";
 export const loginController = async (req: Request, res: Response) => {
@@ -36,6 +36,17 @@ export const registerController = async (
 
     const data = await register(validated, req.user.role);
     return res.json(data);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+
+export const getMeController = async (req: AuthRequest, res: Response) => {
+  try {
+    const user = await findUserById(req.user!.userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.json(user);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
   }

@@ -16,10 +16,11 @@ login: async (payload: LoginPayload) => {
   return response.data; // ✅ must return this
 },
 
-  getMe: async (): Promise<{ success: boolean; data: AuthResponse["data"]["user"] }> => {
-    const { data } = await axiosInstance.get("/auth/me");
-    return data;
-  },
+ getMe: async () => {
+  const { data } = await axiosInstance.get("/auth/me");
+  console.log("RAW ME DATA:", data); // ← add this
+  return data;
+},
 
   logout: async (): Promise<void> => {
     await axiosInstance.post("/auth/logout");

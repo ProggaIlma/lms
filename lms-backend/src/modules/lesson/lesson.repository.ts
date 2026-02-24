@@ -1,53 +1,55 @@
-import { PrismaClient } from "@prisma/client";
-import { Role } from "@prisma/client";
-import { log } from "console";
+import { PrismaClient, Role } from "@prisma/client";
+
 const prisma = new PrismaClient();
 
 export const LessonRepository = {
-  create: (data: any, user: any) => prisma.lesson.create({ data: { ...data, userId: user.id } }),
+  create: (data: any) =>
+    prisma.lesson.create({
+      data: {
+        title:     data.title,
+        content:   data.content,
+        videoUrl:  data.videoUrl  || null,
+        order:     data.order,
+        isPreview: data.isPreview ?? false,
+        courseId:  data.courseId,           // ✅ from URL param
+        createdById: data.createdById ?? null,
+        updatedById: data.updatedById ?? null,
+      },
+    }),
 
   update: async (id: string, data: any, userRole: Role, userId: string) => {
     const lesson = await prisma.lesson.findFirst({
-      where: { id },
+      where:   { id },
       include: { course: true },
     });
 
-    if (!lesson) {
-      throw new Error("Lesson not found");
-    }
+    if (!lesson) throw new Error("Lesson not found");
 
     if (userRole === Role.INSTRUCTOR && lesson.course.instructorId !== userId) {
       throw new Error("You cannot modify this lesson");
     }
 
-    return prisma.lesson.update({
-      where: { id },
-      data,
-    });
+    return prisma.lesson.update({ where: { id }, data });
   },
- delete: async (id: string, userRole: Role, userId: string) => {
-  const lesson = await prisma.lesson.findUnique({
-    where: { id },
-    include: { course: true },
-  });
 
-  if (!lesson || lesson.course.isDeleted) {
-    throw new Error("Lesson not found");
-  }
+  delete: async (id: string, userRole: Role, userId: string) => {
+    const lesson = await prisma.lesson.findUnique({
+      where:   { id },
+      include: { course: true },
+    });
 
-  if (
-    userRole === Role.INSTRUCTOR &&
-    lesson.course.instructorId !== userId
-  ) {
-    throw new Error("You cannot delete this lesson");
-  }
+    if (!lesson || lesson.course.isDeleted) throw new Error("Lesson not found");
 
-  return prisma.lesson.delete({ where: { id } });
-},
+    if (userRole === Role.INSTRUCTOR && lesson.course.instructorId !== userId) {
+      throw new Error("You cannot delete this lesson");
+    }
+
+    return prisma.lesson.delete({ where: { id } });
+  },
 
   findByCourse: (courseId: string) =>
     prisma.lesson.findMany({
-      where: { courseId },
+      where:   { courseId },
       orderBy: { order: "asc" },
     }),
 };

@@ -11,37 +11,34 @@ const initialState: AuthState = {
   error: null,
 };
 
-export const login = createAsyncThunk(
-  "auth/login",
-  async (payload: LoginPayload, { rejectWithValue }) => {
-    try {
-      const data = await authApi.login(payload);
-      return data; // { user, token }
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.error || "Login failed");
-    }
+export const login = createAsyncThunk("auth/login", async (payload: LoginPayload, { rejectWithValue }) => {
+  try {
+    const data = await authApi.login(payload);
+    return data; // { user, token }
+  } catch (err: any) {
+    return rejectWithValue(err.response?.data?.error || "Login failed");
   }
-);
+});
 
-export const register = createAsyncThunk(
-  "auth/register",
-  async (payload: RegisterPayload, { rejectWithValue }) => {
-    try {
-      console.log("THUNK CALLED WITH:", payload);
-      const result = await authApi.register(payload);
-      console.log("THUNK GOT RESULT:", result);
-      return result;
-    } catch (err: any) {
-      console.log("THUNK ERROR:", err);
-      return rejectWithValue(err.response?.data?.message || "Registration failed");
-    }
+export const register = createAsyncThunk("auth/register", async (payload: RegisterPayload, { rejectWithValue }) => {
+  try {
+    console.log("THUNK CALLED WITH:", payload);
+    const result = await authApi.register(payload);
+    console.log("THUNK GOT RESULT:", result);
+    return result;
+  } catch (err: any) {
+    console.log("THUNK ERROR:", err);
+    return rejectWithValue(err.response?.data?.message || "Registration failed");
   }
-);
+});
 
 export const fetchCurrentUser = createAsyncThunk("auth/fetchCurrentUser", async (_, { rejectWithValue }) => {
   try {
     const response = await authApi.getMe();
-    return response.data;
+    // handle any response shape
+    const user = response?.data ?? response;
+    console.log("FETCHED USER:", user);
+    return user;
   } catch (err: any) {
     return rejectWithValue(err.response?.data?.message || "Failed to fetch user");
   }
@@ -127,7 +124,20 @@ const authSlice = createSlice({
       })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload;
+
+        if (!action.payload) return;
+
+        const payload = action.payload as any;
+
+        state.user = {
+          id: payload.id,
+          userId: payload.id, // ✅ map id → userId
+          name: payload.name,
+          email: payload.email,
+          role: payload.role,
+          isActive: payload.isActive ?? true,
+          createdAt: payload.createdAt ?? new Date().toISOString(),
+        };
         state.isAuthenticated = true;
       })
       .addCase(fetchCurrentUser.rejected, (state) => {

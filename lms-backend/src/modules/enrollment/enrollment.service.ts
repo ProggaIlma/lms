@@ -2,9 +2,12 @@ import { EnrollmentRepository } from "./enrollment.repository";
 import { EnrollmentStatus, Role } from "@prisma/client";
 
 export const EnrollmentService = {
-
-  enroll: async (data: any) => {
+  enroll: async (data: { studentId: string; courseId: string }) => {
     return EnrollmentRepository.create(data.studentId, data.courseId);
+  },
+
+   getMyEnrollments: async (studentId: string) => {  // ✅ add this
+    return EnrollmentRepository.findByStudent(studentId);
   },
 
   updateStatus: async (
@@ -13,12 +16,6 @@ export const EnrollmentService = {
     userId: string,
     userRole: Role
   ) => {
-    return EnrollmentRepository.update(
-      id,
-      { status },
-      userId,
-      userRole
-    );
+    return EnrollmentRepository.update(id, { status }, userId, userRole);
   },
-
 };

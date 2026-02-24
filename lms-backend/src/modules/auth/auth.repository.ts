@@ -13,3 +13,16 @@ export const createUser = (data: { name: string; email: string; password: string
     data,
   });
 };
+export const findUserById = (id: string) => {
+  return prisma.user.findUnique({
+    where: { id },
+    select: {
+      id:        true,
+      name:      true,
+      email:     true,
+      role:      true,
+      isActive:  true,
+      createdAt: true,
+    },
+  });
+};
