@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ReduxProvider>
           <AuthInitializer />
           {children}
-          <Toaster  // ✅ add this
+          <Toaster  
             position="top-right"
             toastOptions={{
               duration: 4000,

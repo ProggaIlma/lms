@@ -26,7 +26,6 @@ export default function EditCoursePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading]   = useState(true);
   const [isSaving, setIsSaving]     = useState(false);
-  const [success, setSuccess]       = useState<string | null>(null);
 
   // Thumbnail
   const fileInputRef                            = useRef<HTMLInputElement>(null);
@@ -112,14 +111,13 @@ export default function EditCoursePage() {
   const onSaveCourse = async (data: CourseFormData) => {
     setIsSaving(true);
     toast.dismiss();
-    setSuccess(null);
     try {
       await courseApi.update(id, {
         ...data,
         thumbnail: thumbnailFile ?? undefined,
       });
-      setSuccess("Course updated successfully");
-      setTimeout(() => setSuccess(null), 3000);
+      toast.success("Course updated successfully");
+      setTimeout(() => toast.dismiss(), 3000);
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to update course");
     } finally {
@@ -207,11 +205,7 @@ export default function EditCoursePage() {
       </div>
 
      
-      {success && (
-        <div className="px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-600">
-          {success}
-        </div>
-      )}
+     
 
       <form onSubmit={handleSubmit(onSaveCourse)} className="space-y-5">
 
