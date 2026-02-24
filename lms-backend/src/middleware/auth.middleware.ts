@@ -54,3 +54,26 @@ export const authMiddleware = (
     return res.status(401).json({ error: "Invalid token" });
   }
 };
+
+export function authorize(...allowedRoles: Role[]) {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    const user = req.user;
+
+    // authenticate() must run before authorize()
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: no user found on request",
+      });
+    }
+
+    if (!allowedRoles.includes(user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: `Forbidden: requires one of [${allowedRoles.join(", ")}]`,
+      });
+    }
+
+    next();
+  };
+}
