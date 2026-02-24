@@ -20,4 +20,5 @@ export const analyticsApi = {
     const { data } = await axiosInstance.get("/analytics/instructor");
     return data;
   },
+  
 };

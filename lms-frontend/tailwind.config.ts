@@ -52,6 +52,15 @@ const config: Config = {
         card: "0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.07)",
         "card-hover": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
         modal: "0 20px 60px -10px rgb(0 0 0 / 0.3)",
+      },keyframes: {
+        progress: {
+          "0%":   { width: "0%",   opacity: "1" },
+          "70%":  { width: "85%",  opacity: "1" },
+          "100%": { width: "100%", opacity: "0" },
+        },
+      },
+      animation: {
+        progress: "progress 0.5s ease-in-out forwards",
       },
     },
   },

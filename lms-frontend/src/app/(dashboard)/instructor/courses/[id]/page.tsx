@@ -204,9 +204,6 @@ export default function EditCoursePage() {
         <Button variant="secondary" onClick={() => router.back()}>Back</Button>
       </div>
 
-     
-     
-
       <form onSubmit={handleSubmit(onSaveCourse)} className="space-y-5">
 
         {/* Thumbnail */}
