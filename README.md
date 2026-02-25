@@ -98,7 +98,7 @@ npx prisma generate
 
 **6. Start the server:**
 ```bash
-npm run dev
+npx ts-node-dev src/app.ts
 ```
 
 Backend runs at `http://localhost:5000`
@@ -119,7 +119,7 @@ npm install
 
 **3. Create `.env.local` file:**
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
 **4. Start the dev server:**
@@ -130,6 +130,17 @@ npm run dev
 Frontend runs at `http://localhost:3000`
 
 ---
+### Testing Setup
+
+**1. Navigate to backend:**
+```bash
+cd lms-backend
+```
+
+**2. Install dependencies:**
+```bash
+npm test
+```
 
 ## API Endpoints
 
