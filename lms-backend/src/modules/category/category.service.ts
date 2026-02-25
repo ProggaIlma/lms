@@ -6,7 +6,7 @@ const categoryRepository = new CategoryRepository();
 
 export class CategoryService {
   async createCategory(data: CreateCategoryDTO, userId: string) {
-    // Prevent duplicate names
+    
     const existing = await categoryRepository.findByName(data.name);
     if (existing) {
       throw new AppError("Category with this name already exists", 409);
@@ -43,13 +43,12 @@ export class CategoryService {
   }
 
   async updateCategory(id: string, data: UpdateCategoryDTO, userId: string) {
-    // Ensure category exists
     const category = await categoryRepository.findById(id);
     if (!category) {
       throw new AppError("Category not found", 404);
     }
 
-    // Check name uniqueness if name is being changed
+    
     if (data.name && data.name !== category.name) {
       const nameConflict = await categoryRepository.findByName(data.name);
       if (nameConflict) {

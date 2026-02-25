@@ -1,12 +1,10 @@
 import Sidebar from "@/components/layout/Sidebar";
 import Topbar from "@/components/layout/Topbar";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import PageLoader from "@/components/ui/PageLoader";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-surface-50">
-        <PageLoader /> 
       <Sidebar />
       <div className="ml-60">
         <Topbar />
