@@ -10,7 +10,7 @@ import categoryRouter from "./modules/category/category.routes";
 import userRouter from "./modules/user/user.routes";
 import { errorHandler } from "./middleware/error.middleware";
 import progressRouter from "./modules/progress/progress.routes";
-import { logger } from "@middlewares/logger.middleware";
+import { logger } from "./middleware/logger.middleware";
 import path from "path";
 
 const app = express();

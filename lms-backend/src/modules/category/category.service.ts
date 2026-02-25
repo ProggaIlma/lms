@@ -2,21 +2,24 @@ import { CategoryRepository } from "./category.repository";
 import { CreateCategoryDTO, UpdateCategoryDTO, CategoryQueryDTO } from "./category.dto";
 
 import { AppError } from "../../utils/AppError";
-const categoryRepository = new CategoryRepository();
+// const categoryRepository = new CategoryRepository();
 
 export class CategoryService {
+  constructor(
+    private categoryRepository: CategoryRepository = new CategoryRepository()
+  ) {}
   async createCategory(data: CreateCategoryDTO, userId: string) {
     
-    const existing = await categoryRepository.findByName(data.name);
+    const existing = await this.categoryRepository.findByName(data.name);
     if (existing) {
       throw new AppError("Category with this name already exists", 409);
     }
 
-    return categoryRepository.create(data, userId);
+    return this.categoryRepository.create(data, userId);
   }
 
   async getCategoryById(id: string) {
-    const category = await categoryRepository.findById(id);
+    const category = await this.categoryRepository.findById(id);
     if (!category) {
       throw new AppError("Category not found", 404);
     }
@@ -24,7 +27,7 @@ export class CategoryService {
   }
 
   async getAllCategories(query: CategoryQueryDTO) {
-    const { items, total, nextCursor } = await categoryRepository.findAll(query);
+    const { items, total, nextCursor } = await this.categoryRepository.findAll(query);
 
     return {
       categories: items,
@@ -43,24 +46,24 @@ export class CategoryService {
   }
 
   async updateCategory(id: string, data: UpdateCategoryDTO, userId: string) {
-    const category = await categoryRepository.findById(id);
+    const category = await this.categoryRepository.findById(id);
     if (!category) {
       throw new AppError("Category not found", 404);
     }
 
     
     if (data.name && data.name !== category.name) {
-      const nameConflict = await categoryRepository.findByName(data.name);
+      const nameConflict = await this.categoryRepository.findByName(data.name);
       if (nameConflict) {
         throw new AppError("Category with this name already exists", 409);
       }
     }
 
-    return categoryRepository.update(id, data, userId);
+    return this.categoryRepository.update(id, data, userId);
   }
 
   async deleteCategory(id: string, userId: string) {
-    const category = await categoryRepository.findById(id);
+    const category = await this.categoryRepository.findById(id);
     if (!category) {
       throw new AppError("Category not found", 404);
     }
@@ -73,7 +76,7 @@ export class CategoryService {
       );
     }
 
-    await categoryRepository.softDelete(id, userId);
+    await this.categoryRepository.softDelete(id, userId);
     return { message: "Category deleted successfully" };
   }
 }

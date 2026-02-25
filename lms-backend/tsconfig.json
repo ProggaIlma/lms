@@ -13,8 +13,8 @@
       "@middlewares/*": ["src/middleware/*"],
       "@utils/*": ["src/utils/*"],
       "@types/*": ["src/types/*"]
-    }
-     
+    },
+      "types": ["node", "jest"],
 
   }, "include": ["src/**/*.ts", "src/types/**/*.d.ts"]
 }
