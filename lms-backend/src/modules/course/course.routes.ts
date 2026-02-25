@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { CourseController } from "./course.controller";
-import { authenticate } from "../../../src/middleware/auth.middleware";
+import { authenticate } from "../../middleware/auth.middleware";
 import { LessonController } from "../lesson/lesson.controller";
 
-import { authorizeRoles } from "../../../src/middleware/role.middleware";
+import { authorizeRoles } from "../../middleware/role.middleware";
 import { Role } from "@prisma/client";
 const router = Router();
 
