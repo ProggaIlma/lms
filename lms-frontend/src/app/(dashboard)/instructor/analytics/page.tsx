@@ -90,7 +90,8 @@ export default function InstructorAnalyticsPage() {
             <p className="text-sm text-surface-400 mt-1">Create a course to see analytics</p>
           </div>
         ) : (
-          <table className="w-full">
+           <div className="overflow-x-auto">
+          <table className="w-full min-w-[600px]">
             <thead>
               <tr className="border-b border-surface-200 bg-surface-50">
                 {["Course", "Lessons", "Students", "Price", "Revenue"].map((h) => (
@@ -125,7 +126,7 @@ export default function InstructorAnalyticsPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
       </div>
     </div>

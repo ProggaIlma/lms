@@ -80,7 +80,7 @@ export default function EditCoursePage() {
 
         // Set thumbnail preview if exists
         if (c.thumbnail) {
-          setThumbnailPreview(`http://localhost:5000${c.thumbnail}`);
+          setThumbnailPreview(`${c.thumbnail}`);
         }
 
         reset({

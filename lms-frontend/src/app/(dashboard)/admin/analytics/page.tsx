@@ -178,7 +178,8 @@ export default function AdminAnalyticsPage() {
         ) : completionRates.length === 0 ? (
           <p className="text-sm text-surface-400 text-center py-8">No instructor data yet</p>
         ) : (
-          <table className="w-full">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[600px]">
             <thead>
               <tr className="border-b border-surface-200 bg-surface-50">
                 {["Instructor", "Courses", "Enrollments", "Completed", "Rate"].map((h) => (
@@ -213,7 +214,7 @@ export default function AdminAnalyticsPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
       </div>
     </div>

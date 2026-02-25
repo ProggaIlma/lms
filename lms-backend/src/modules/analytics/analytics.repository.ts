@@ -15,13 +15,25 @@ export const AnalyticsRepository = {
           _sum:   { price: true },
         }),
       ]);
+ // * fix revenue calculation — sum price × enrollments per course
+  const paidCourses = await prisma.course.findMany({
+    where: {
+      isDeleted: false,
+      isFree:    false,
+      price:     { gt: 0 },
+    },
+    select: {
+      price:   true,
+      _count:  { select: { enrollments: true } },
+    },
+  });
 
-    return {
-      totalUsers,
-      totalCourses,
-      totalEnrollments,
-      totalRevenue: revenue._sum.price ?? 0,
-    };
+  const totalRevenue = paidCourses.reduce(
+    (sum, course) => sum + course.price * course._count.enrollments,
+    0
+  );
+      return { totalUsers, totalCourses, totalEnrollments, totalRevenue };
+
   },
 // * completion rate per instructor
 getCompletionRates: async () => {
@@ -111,24 +123,28 @@ getCompletionRates: async () => {
 
   // * Revenue per course
   getRevenuePerCourse: async () => {
-    const courses = await prisma.course.findMany({
-      where: { isDeleted: false, isFree: false },
-      select: {
-        id:     true,
-        title:  true,
-        price:  true,
-        _count: { select: { enrollments: true } },
-      },
-    });
+  const courses = await prisma.course.findMany({
+    where: {
+      isDeleted: false,
+      isFree:    false,
+      price:     { gt: 0 }, // * only paid courses
+    },
+    select: {
+      id:     true,
+      title:  true,
+      price:  true,
+      _count: { select: { enrollments: true } },
+    },
+  });
 
-    return courses.map((c) => ({
-      id:       c.id,
-      title:    c.title,
-      price:    c.price,
-      students: c._count.enrollments,
-      revenue:  c.price * c._count.enrollments,
-    }));
-  },
+  return courses.map((c) => ({
+    id:       c.id,
+    title:    c.title,
+    price:    c.price,
+    students: c._count.enrollments,
+    revenue:  c.price * c._count.enrollments,
+  }));
+},
 
   // * Instructor stats
   getInstructorStats: async (instructorId: string) => {
@@ -141,10 +157,23 @@ getCompletionRates: async () => {
       }),
     ]);
 
-    const revenue = await prisma.course.aggregate({
-      where:  { instructorId, isDeleted: false, isFree: false },
-      _sum:   { price: true },
-    });
+    const paidCourses = await prisma.course.findMany({
+  where: {
+    instructorId,
+    isDeleted: false,
+    isFree:    false,
+    price:     { gt: 0 },
+  },
+  select: {
+    price:  true,
+    _count: { select: { enrollments: true } },
+  },
+});
+
+const totalRevenue = paidCourses.reduce(
+  (sum, course) => sum + course.price * course._count.enrollments,
+  0
+);
 
     const topCourses = await prisma.course.findMany({
       where:   { instructorId, isDeleted: false },
@@ -162,7 +191,7 @@ getCompletionRates: async () => {
     return {
       totalCourses:     courses,
       totalStudents:    enrollments,
-      totalRevenue:     revenue._sum.price ?? 0,
+      totalRevenue,
       topCourses,
     };
   },

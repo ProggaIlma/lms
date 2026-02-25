@@ -183,7 +183,8 @@ const handleCreateAdmin = async () => {
             <p className="text-sm text-surface-400 mt-1">{search || roleFilter ? "Try adjusting your filters" : "No users registered yet"}</p>
           </div>
         ) : (
-          <table className="w-full">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[600px]">
             <thead>
               <tr className="border-b border-surface-200 bg-surface-50">
                 {["User", "Role", "Status", "Joined", "Action"].map((h) => (
@@ -242,7 +243,7 @@ const handleCreateAdmin = async () => {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
 
         {/* Pagination */}

@@ -136,7 +136,8 @@ export default function CategoriesPage() {
             )}
           </div>
         ) : (
-          <table className="w-full">
+         <div className="overflow-x-auto">
+          <table className="w-full min-w-[600px]">
             <thead>
               <tr className="border-b border-surface-200 bg-surface-50">
                 {["Name", "Courses", "Created", "Status", ""].map((h) => (
@@ -191,7 +192,7 @@ export default function CategoriesPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
 
         {/* Pagination */}

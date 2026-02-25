@@ -14,9 +14,7 @@ export const CourseController = {
       const parsed = createCourseSchema.parse({
         ...req.body,
         instructorId: req.user!.userId,
-        thumbnail: req.file
-          ? `/uploads/thumbnails/${req.file.filename}`
-          : null,
+        thumbnail: req.file ? req.file.path : null,
         isFree: req.body.isFree === "true" || req.body.isFree === true,
         price:  parseFloat(req.body.price) || 0,
       });
@@ -33,7 +31,7 @@ export const CourseController = {
       // * validate and parse body
       const parsed = updateCourseSchema.parse({
         ...req.body,
-        ...(req.file && { thumbnail: `/uploads/thumbnails/${req.file.filename}` }),
+        ...(req.file && { thumbnail: req.file ? req.file.path : null }),
         isFree: req.body.isFree !== undefined
           ? req.body.isFree === "true" || req.body.isFree === true
           : undefined,
@@ -41,7 +39,7 @@ export const CourseController = {
           ? parseFloat(req.body.price)
           : undefined,
       });
-
+    
       const course = await CourseService.updateCourse(
         req.params.id as string,
         parsed

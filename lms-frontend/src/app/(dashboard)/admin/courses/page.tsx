@@ -126,7 +126,8 @@ export default function AdminCoursesPage() {
             </p>
           </div>
         ) : (
-          <table className="w-full">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[600px]">
             <thead>
               <tr className="border-b border-surface-200 bg-surface-50">
                 {["Course", "Instructor", "Category", "Price", "Status", "Students", ""].map((h) => (
@@ -187,7 +188,7 @@ export default function AdminCoursesPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
 
         {/* Pagination */}

@@ -11,7 +11,7 @@ import { uploadThumbnail } from "../../middleware/upload.middleware";
 
 router.post("/", authenticate, authorizeRoles(Role.ADMIN, Role.INSTRUCTOR), uploadThumbnail, CourseController.create);
 
-router.put("/:id", authenticate, authorizeRoles(Role.ADMIN, Role.INSTRUCTOR), uploadThumbnail, CourseController.update);
+router.put("/:id", authenticate, authorizeRoles(Role.ADMIN, Role.INSTRUCTOR,Role.SUPER_ADMIN), uploadThumbnail, CourseController.update);
 router.get("/", CourseController.getAll);
 router.get("/:id", CourseController.getOne);
 router.delete("/:id", authenticate, authorizeRoles(Role.ADMIN, Role.INSTRUCTOR), CourseController.delete);

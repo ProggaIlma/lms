@@ -112,7 +112,8 @@ export default function InstructorCoursesPage() {
             </Link>
           </div>
         ) : (
-          <table className="w-full">
+         <div className="overflow-x-auto">
+          <table className="w-full min-w-[600px]">
             <thead>
               <tr className="border-b border-surface-200 bg-surface-50">
                 {["Course", "Category", "Price", "Status", "Lessons", ""].map((h) => (
@@ -176,7 +177,7 @@ export default function InstructorCoursesPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
 
         {/* Pagination */}
