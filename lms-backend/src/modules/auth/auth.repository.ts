@@ -1,6 +1,5 @@
-import { PrismaClient, Role } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../../config/prisma";
+import { Role } from "@prisma/client";
 
 export const findUserByEmail = (email: string) => {
   return prisma.user.findUnique({

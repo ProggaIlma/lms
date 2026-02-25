@@ -5,9 +5,8 @@ import { authorize } from "../../middleware/auth.middleware";
 
 const router = Router();
 
-// * student only routes
-router.post("/complete",         authenticate, authorize("STUDENT"), ProgressController.markComplete);
-router.post("/incomplete",       authenticate, authorize("STUDENT"), ProgressController.markIncomplete);
-router.get("/:courseId",         authenticate, authorize("STUDENT"), ProgressController.getCourseProgress);
+router.post("/complete", authenticate, authorize("STUDENT"), ProgressController.markComplete);
+router.post("/incomplete", authenticate, authorize("STUDENT"), ProgressController.markIncomplete);
+router.get("/:courseId", authenticate, authorize("STUDENT"), ProgressController.getCourseProgress);
 
 export default router;

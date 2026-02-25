@@ -1,7 +1,8 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { CreateCategoryDTO, UpdateCategoryDTO, CategoryQueryDTO } from "./category.dto";
 
-const prisma = new PrismaClient();
+import { prisma } from "../../config/prisma";
+
 
 
 

@@ -1,6 +1,6 @@
-import { PrismaClient, Role } from "@prisma/client";
+import { Role } from "@prisma/client";
 
-const prisma = new PrismaClient();
+import { prisma } from "../../config/prisma";
 
 export const LessonRepository = {
   create: (data: any) =>

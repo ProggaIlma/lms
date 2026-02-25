@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../config/prisma";
 
-const prisma = new PrismaClient();
 
 export const AnalyticsRepository = {
   // * Total counts for admin

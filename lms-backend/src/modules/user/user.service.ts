@@ -22,10 +22,10 @@ export const UserService = {
 
     const hashed = await bcrypt.hash(data.password, 10);
     return UserRepository.create({
-      name:     data.name,
-      email:    data.email,
+      name: data.name,
+      email: data.email,
       password: hashed,
-      role:     Role.ADMIN,
+      role: Role.ADMIN,
     });
   },
 
@@ -54,5 +54,5 @@ export const UserService = {
     }
 
     return UserRepository.update(id, { isActive });
-  }
+  },
 };

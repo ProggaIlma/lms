@@ -1,36 +1,27 @@
-import { PrismaClient, Role } from "@prisma/client";
+import { prisma } from "../../config/prisma";
 import { AppError } from "../../utils/AppError";
-
-const prisma = new PrismaClient();
+import { Role } from "@prisma/client";
 
 // * shared select — never expose password
 const userSelect = {
-  id:        true,
-  name:      true,
-  email:     true,
-  role:      true,
-  isActive:  true,
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  isActive: true,
   createdAt: true,
 };
 
 export const UserRepository = {
-findAll: async (params?: {
-    role?:   Role;
-    search?: string;
-    page?:   number;
-    limit?:  number;
-  }) => {
-    const page  = params?.page  ?? 1;
+  findAll: async (params?: { role?: Role; search?: string; page?: number; limit?: number }) => {
+    const page = params?.page ?? 1;
     const limit = params?.limit ?? 10;
-    const skip  = (page - 1) * limit;
+    const skip = (page - 1) * limit;
 
     const where = {
-      ...(params?.role   && { role: params.role }),
+      ...(params?.role && { role: params.role }),
       ...(params?.search && {
-        OR: [
-          { name:  { contains: params.search, mode: "insensitive" as const } },
-          { email: { contains: params.search, mode: "insensitive" as const } },
-        ],
+        OR: [{ name: { contains: params.search, mode: "insensitive" as const } }, { email: { contains: params.search, mode: "insensitive" as const } }],
       }),
     };
 
@@ -38,15 +29,15 @@ findAll: async (params?: {
       prisma.user.count({ where }),
       prisma.user.findMany({
         where,
-        select:  userSelect,
+        select: userSelect,
         orderBy: { createdAt: "desc" },
         skip,
-        take:    limit,
+        take: limit,
       }),
     ]);
 
     return {
-      data:users,
+      data: users,
       pagination: {
         total,
         page,
@@ -64,12 +55,7 @@ findAll: async (params?: {
     return prisma.user.findUnique({ where: { email } });
   },
 
-  create: async (data: {
-    name:     string;
-    email:    string;
-    password: string;
-    role:     Role;
-  }) => {
+  create: async (data: { name: string; email: string; password: string; role: Role }) => {
     return prisma.user.create({
       data,
       select: userSelect,
@@ -81,7 +67,7 @@ findAll: async (params?: {
     if (!user) throw new AppError("User not found", 404);
 
     return prisma.user.update({
-      where:  { id },
+      where: { id },
       data,
       select: userSelect,
     });
