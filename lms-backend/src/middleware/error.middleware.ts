@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
-import { ApiError } from "../utils/ApiError";
+import { AppError } from "@utils/AppError";
 
 export const errorHandler = (
   err: any,
@@ -8,14 +8,15 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  // Your ApiError
-  if (err instanceof ApiError) {
-    return res.status(err.statusCode).json({
-      success: false,
-      message: err.message,
-    });
-  }
-
+  console.log("ERROR TYPE:", err.constructor.name);
+  console.log("IS AppError:", err instanceof AppError);  
+ 
+if (err.isOperational) {
+  return res.status(err.statusCode || 400).json({
+    success: false,
+    message: err.message,
+  });
+}
 if (err instanceof ZodError) {
   return res.status(400).json({
     success: false,

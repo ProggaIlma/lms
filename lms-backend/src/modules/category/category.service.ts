@@ -1,22 +1,29 @@
 import { CategoryRepository } from "./category.repository";
 import { CreateCategoryDTO, UpdateCategoryDTO, CategoryQueryDTO } from "./category.dto";
-
-import { AppError } from "../../utils/AppError";
-// const categoryRepository = new CategoryRepository();
+import { AppError } from "@utils/AppError";// const categoryRepository = new CategoryRepository();
 
 export class CategoryService {
   constructor(
     private categoryRepository: CategoryRepository = new CategoryRepository()
   ) {}
-  async createCategory(data: CreateCategoryDTO, userId: string) {
-    
-    const existing = await this.categoryRepository.findByName(data.name);
-    if (existing) {
-      throw new AppError("Category with this name already exists", 409);
+async createCategory(data: CreateCategoryDTO, userId: string) {
+  try {
+    console.log("DATA:", data);
+    console.log("USER:", userId);
+
+    if (data.name) {
+      const nameConflict = await this.categoryRepository.findByName(data.name);
+      if (nameConflict) {
+        throw new AppError("Category with this name already exists", 409);
+      }
     }
 
     return this.categoryRepository.create(data, userId);
+  } catch (error) {
+    console.error("CREATE CATEGORY ERROR:", error);
+    throw error;
   }
+}
 
   async getCategoryById(id: string) {
     const category = await this.categoryRepository.findById(id);
@@ -50,9 +57,8 @@ export class CategoryService {
     if (!category) {
       throw new AppError("Category not found", 404);
     }
-
     
-    if (data.name && data.name !== category.name) {
+    if (data.name && data.name == category.name) {
       const nameConflict = await this.categoryRepository.findByName(data.name);
       if (nameConflict) {
         throw new AppError("Category with this name already exists", 409);
@@ -68,7 +74,6 @@ export class CategoryService {
       throw new AppError("Category not found", 404);
     }
 
-    // Optional: prevent deleting a category that has active courses
     if (category._count.categoryCourses > 0) {
       throw new AppError(
         "Cannot delete a category that has courses assigned to it. Reassign courses first.",

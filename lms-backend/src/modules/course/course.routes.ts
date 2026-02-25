@@ -14,7 +14,7 @@ router.post("/", authenticate, authorizeRoles(Role.ADMIN, Role.INSTRUCTOR), uplo
 router.put("/:id", authenticate, authorizeRoles(Role.ADMIN, Role.INSTRUCTOR,Role.SUPER_ADMIN), uploadThumbnail, CourseController.update);
 router.get("/", CourseController.getAll);
 router.get("/:id", CourseController.getOne);
-router.delete("/:id", authenticate, authorizeRoles(Role.ADMIN, Role.INSTRUCTOR), CourseController.delete);
+router.delete("/:id", authenticate, authorizeRoles(Role.ADMIN, Role.INSTRUCTOR, Role.SUPER_ADMIN), CourseController.delete);
 
 router.post("/:id/lessons", authenticate, authorizeRoles(Role.ADMIN, Role.INSTRUCTOR), LessonController.create);
 router.get("/:id/lessons", LessonController.getByCourse);

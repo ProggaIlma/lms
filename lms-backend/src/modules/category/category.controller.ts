@@ -13,7 +13,7 @@ export class CategoryController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const body = createCategorySchema.parse(req.body);
-      const userId = req.user!.userId; // ✅ fixed
+      const userId = req.user!.userId;
 
       const category = await categoryService.createCategory(body, userId);
 

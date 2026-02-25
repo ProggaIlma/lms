@@ -12,13 +12,13 @@ export const createCourseSchema = z.object({
 });
 
 export const updateCourseSchema = z.object({
-  title:       z.string().min(3).max(100).optional(),
-  description: z.string().min(10).optional(),
-  categoryId:  z.string().uuid("Invalid category ID").optional().nullable(),
-  price:       z.coerce.number().min(0).optional(),
-  isFree:      z.coerce.boolean().optional(),
-  status:      z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
-  thumbnail:   z.string().optional().nullable(),
+  title:        z.string().min(3).max(100).optional(),
+  description:  z.string().min(10).optional(),
+  categoryId:   z.string().uuid().optional().nullable(),
+  price:        z.coerce.number().min(0).optional(),
+  isFree:       z.coerce.boolean().optional(),
+  status:       z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
+  thumbnail:    z.string().optional().nullable(),
 });
 
 export const courseQuerySchema = z.object({

@@ -14,7 +14,7 @@ export const CourseController = {
       const parsed = createCourseSchema.parse({
         ...req.body,
         instructorId: req.user!.userId,
-        thumbnail: req.file ? req.file.path : null,
+        thumbnail: req?.file ? req?.file?.path : null,
         isFree: req.body.isFree === "true" || req.body.isFree === true,
         price:  parseFloat(req.body.price) || 0,
       });
@@ -26,29 +26,34 @@ export const CourseController = {
     }
   },
 
-  async update(req: AuthRequest, res: Response) {
-    try {
-      // * validate and parse body
-      const parsed = updateCourseSchema.parse({
-        ...req.body,
-        ...(req.file && { thumbnail: req.file ? req.file.path : null }),
-        isFree: req.body.isFree !== undefined
-          ? req.body.isFree === "true" || req.body.isFree === true
-          : undefined,
-        price: req.body.price !== undefined
-          ? parseFloat(req.body.price)
-          : undefined,
-      });
+async update(req: AuthRequest, res: Response) {
+  try {
+    console.log(req);
     
-      const course = await CourseService.updateCourse(
-        req.params.id as string,
-        parsed
-      );
-      res.json({ success: true, data: course });
-    } catch (err: any) {
-      res.status(400).json({ success: false, message: err.message });
-    }
-  },
+    const parsed = updateCourseSchema.parse({
+      // ! don't spread req.body blindly if it has empty strings
+      ...req.body,
+      // * only include isFree and price if they exist in body
+      ...(req.body.isFree !== undefined && {
+        isFree: req.body.isFree === "true" || req.body.isFree === true,
+      }),
+      ...(req.body.price !== undefined && {
+        price: parseFloat(req.body.price),
+      }),
+      ...(req.file && {
+        thumbnail: req.file.path,
+      }),
+    });
+console.log("Parsed update data:", parsed);
+    const course = await CourseService.updateCourse(
+      req.params.id as string,
+      parsed
+    );
+    res.json({ success: true, data: course });
+  } catch (err: any) {
+    res.status(err.statusCode ?? 400).json({ success: false, message: err.message });
+  }
+},
 
   async delete(req: AuthRequest, res: Response) {
     try {

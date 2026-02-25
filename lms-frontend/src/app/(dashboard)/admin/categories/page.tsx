@@ -18,9 +18,11 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import { TableSkeleton } from "@/components/ui/Skeleton";
+import { clearCourseError } from "@/store/slices/courseSlice";
 
 export default function CategoriesPage() {
   const dispatch = useDispatch<AppDispatch>();
+  
   const { categories, isLoading, pagination, error } = useSelector(
     (state: RootState) => state.category
   );
@@ -37,7 +39,7 @@ export default function CategoriesPage() {
 
   const loadCategories = useCallback(() => {
     dispatch(fetchCategories({ search: debouncedSearch || undefined, page, limit: 10 }));
-  }, [dispatch, debouncedSearch, page]);
+    clearCourseError();  }, [dispatch, debouncedSearch, page]);
 
   useEffect(() => { loadCategories(); }, [loadCategories]);
   useEffect(() => { setPage(1); }, [debouncedSearch]);
@@ -216,7 +218,7 @@ export default function CategoriesPage() {
       {/* Modals */}
       <CategoryModal
         isOpen={isModalOpen}
-        onClose={() => { setIsModalOpen(false); setEditingCategory(null); }}
+        onClose={() => { setIsModalOpen(false); setEditingCategory(null);clearCourseError();   }}
         onSubmit={handleModalSubmit}
         editingCategory={editingCategory}
         isLoading={actionLoading}

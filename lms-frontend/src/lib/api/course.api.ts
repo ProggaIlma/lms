@@ -51,8 +51,10 @@ update: async (id: string, payload: any): Promise<CourseResponse> => {
   formData.append("description", payload.description);
   formData.append("isFree",      String(payload.isFree));
   formData.append("price",       String(payload.price ?? 0));
+  formData.append("status",      payload.status);
   if (payload.categoryId) formData.append("categoryId", payload.categoryId);
   if (payload.thumbnail)  formData.append("thumbnail",  payload.thumbnail);
+console.log(payload);
 
   const { data } = await axiosInstance.put(`/courses/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
