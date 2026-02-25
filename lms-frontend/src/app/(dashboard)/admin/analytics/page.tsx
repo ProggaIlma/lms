@@ -5,7 +5,7 @@ import { analyticsApi } from "@/lib/api/analytics.api";
 import { formatCurrency, formatNumber } from "@/utils/formatters";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, BarChart, Bar
+  Tooltip, ResponsiveContainer, BarChart, Bar,
 } from "recharts";
 
 interface AdminStats {
@@ -15,23 +15,26 @@ interface AdminStats {
   totalRevenue:     number;
 }
 
-export default function AdminDashboard() {
-  const [stats, setStats]           = useState<AdminStats | null>(null);
-  const [growth, setGrowth]         = useState<any[]>([]);
-  const [topCourses, setTopCourses] = useState<any[]>([]);
-  const [isLoading, setIsLoading]   = useState(true);
+export default function AdminAnalyticsPage() {
+  const [stats, setStats]                   = useState<AdminStats | null>(null);
+  const [growth, setGrowth]                 = useState<any[]>([]);
+  const [topCourses, setTopCourses]         = useState<any[]>([]);
+  const [completionRates, setCompletionRates] = useState<any[]>([]);
+  const [isLoading, setIsLoading]           = useState(true);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [statsRes, growthRes, topRes] = await Promise.all([
+        const [statsRes, growthRes, topRes, ratesRes] = await Promise.all([
           analyticsApi.getAdminStats(),
           analyticsApi.getEnrollmentGrowth(),
           analyticsApi.getTopCourses(),
+          analyticsApi.getCompletionRates(),
         ]);
         setStats(statsRes.data);
         setGrowth(growthRes.data);
         setTopCourses(topRes.data);
+        setCompletionRates(ratesRes.data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -43,7 +46,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome */}
+      {/* Header */}
       <div className="bg-gradient-to-r from-surface-800 to-surface-900 rounded-2xl p-6 text-white">
         <p className="text-surface-400 text-sm font-medium">Admin Panel 🛡️</p>
         <h2 className="font-display text-2xl font-bold mt-1">Analytics Overview</h2>
@@ -102,7 +105,7 @@ export default function AdminDashboard() {
               <XAxis
                 dataKey="date"
                 tick={{ fontSize: 11, fill: "#94a3b8" }}
-                tickFormatter={(val) => val.slice(5)} // * show MM-DD only
+                tickFormatter={(val) => val.slice(5)}
               />
               <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} allowDecimals={false} />
               <Tooltip
@@ -123,17 +126,13 @@ export default function AdminDashboard() {
         )}
       </div>
 
-      {/* Top Courses */}
+      {/* Top Courses Chart */}
       <div className="bg-white rounded-xl border border-surface-200 p-6">
         <h3 className="font-display font-semibold text-surface-900 mb-6">
           Top 5 Popular Courses
         </h3>
         {isLoading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-12 bg-surface-100 rounded-lg animate-pulse" />
-            ))}
-          </div>
+          <div className="h-64 bg-surface-100 rounded-lg animate-pulse" />
         ) : topCourses.length === 0 ? (
           <p className="text-sm text-surface-400 text-center py-8">No course data yet</p>
         ) : (
@@ -152,9 +151,69 @@ export default function AdminDashboard() {
                 contentStyle={{ borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "12px" }}
                 formatter={(val) => [`${val} students`, "Enrollments"]}
               />
-              <Bar dataKey="_count.enrollments" fill="#6366f1" radius={[0, 4, 4, 0]} name="Students" />
+              <Bar
+                dataKey="_count.enrollments"
+                fill="#6366f1"
+                radius={[0, 4, 4, 0]}
+                name="Students"
+              />
             </BarChart>
           </ResponsiveContainer>
+        )}
+      </div>
+
+      {/* Instructor Completion Rates */}
+      <div className="bg-white rounded-xl border border-surface-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-surface-200">
+          <h3 className="font-display font-semibold text-surface-900">
+            Instructor Completion Rates
+          </h3>
+        </div>
+        {isLoading ? (
+          <div className="p-6 space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-12 bg-surface-100 rounded-lg animate-pulse" />
+            ))}
+          </div>
+        ) : completionRates.length === 0 ? (
+          <p className="text-sm text-surface-400 text-center py-8">No instructor data yet</p>
+        ) : (
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-surface-200 bg-surface-50">
+                {["Instructor", "Courses", "Enrollments", "Completed", "Rate"].map((h) => (
+                  <th key={h} className="text-left text-xs font-semibold text-surface-500 uppercase tracking-wider px-6 py-3">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-surface-100">
+              {completionRates.map((row) => (
+                <tr key={row.instructorId} className="hover:bg-surface-50 transition-colors">
+                  <td className="px-6 py-4 text-sm font-semibold text-surface-900">
+                    {row.instructorName}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-surface-600">{row.totalCourses}</td>
+                  <td className="px-6 py-4 text-sm text-surface-600">{row.totalEnrollments}</td>
+                  <td className="px-6 py-4 text-sm text-surface-600">{row.completedEnrollments}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-2 bg-surface-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-primary-600 rounded-full transition-all"
+                          style={{ width: `${row.completionRate}%` }}
+                        />
+                      </div>
+                      <span className="text-sm font-bold text-primary-600 w-12 text-right">
+                        {row.completionRate}%
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>

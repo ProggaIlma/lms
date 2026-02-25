@@ -39,6 +39,7 @@ export interface Enrollment {
   status: EnrollmentStatus;
   enrolledAt: string;
   studentId: string;
+  progress:   number; 
   courseId: string;
   course?: Course;
 }

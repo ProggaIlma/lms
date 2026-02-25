@@ -11,7 +11,14 @@ export const AnalyticsController = {
       res.status(500).json({ success: false, message: err.message });
     }
   },
-
+async getCompletionRates(req: AuthRequest, res: Response) {
+  try {
+    const data = await AnalyticsRepository.getCompletionRates();
+    res.json({ success: true, data });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+},
   async getEnrollmentGrowth(req: AuthRequest, res: Response) {
     try {
       const data = await AnalyticsRepository.getEnrollmentGrowth();

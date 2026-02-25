@@ -6,7 +6,7 @@ export const EnrollmentService = {
     return EnrollmentRepository.create(data.studentId, data.courseId);
   },
 
-   getMyEnrollments: async (studentId: string) => {  // ✅ add this
+   getMyEnrollments: async (studentId: string) => { 
     return EnrollmentRepository.findByStudent(studentId);
   },
 

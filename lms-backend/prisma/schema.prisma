@@ -48,6 +48,8 @@ model User {
   createdCategories Category[] @relation("CategoryCreatedBy")
   updatedCategories Category[] @relation("CategoryUpdatedBy")
 
+  lessonProgress  LessonProgress[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -92,6 +94,7 @@ model Course {
   updatedById String?
   updatedBy   User?   @relation("UpdatedByCourses", fields: [updatedById], references: [id])
 
+  lessonProgress  LessonProgress[]
   lessons     Lesson[]
   enrollments Enrollment[]
 
@@ -120,6 +123,8 @@ model Lesson {
   updatedById String?
   updatedBy   User?   @relation("LessonUpdatedBy", fields: [updatedById], references: [id])
 
+  lessonProgress  LessonProgress[]
+
   @@unique([courseId, order])
   @@index([courseId])
   @@index([order])
@@ -131,7 +136,7 @@ model Enrollment {
   enrolledAt DateTime         @default(now())
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
-
+  progress    Float   @default(0)  // * 0-100 percentage
   studentId String
   student   User   @relation("EnrollmentStudent", fields: [studentId], references: [id])
 
@@ -147,4 +152,20 @@ model Enrollment {
   @@unique([studentId, courseId])
   @@index([studentId])
   @@index([courseId])
+}
+model LessonProgress {
+  id          String     @id @default(uuid())
+  studentId   String
+  lessonId    String
+  courseId    String
+  isCompleted Boolean    @default(false)
+  completedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  student     User       @relation(fields: [studentId], references: [id])
+  lesson      Lesson     @relation(fields: [lessonId], references: [id])
+  course      Course     @relation(fields: [courseId], references: [id])
+
+  @@unique([studentId, lessonId])
 }

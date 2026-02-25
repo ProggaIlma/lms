@@ -33,3 +33,21 @@ export const truncate = (str: string, length: number): string => {
 export const cn = (...classes: (string | undefined | null | false)[]): string => {
   return classes.filter(Boolean).join(" ");
 };
+// * convert any youtube URL to embed format
+export const getYouTubeEmbedUrl = (url: string): string | null => {
+  if (!url) return null;
+
+  // ? already an embed URL
+  if (url.includes("youtube.com/embed/")) return url;
+
+  // * handle youtube.com/watch?v=
+  const watchMatch = url.match(/youtube\.com\/watch\?v=([^&]+)/);
+  if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`;
+
+  // * handle youtu.be/
+  const shortMatch = url.match(/youtu\.be\/([^?]+)/);
+  if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
+
+  // * return original if not youtube
+  return url;
+};

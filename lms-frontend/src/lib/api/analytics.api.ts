@@ -20,5 +20,8 @@ export const analyticsApi = {
     const { data } = await axiosInstance.get("/analytics/instructor");
     return data;
   },
-  
+  getCompletionRates: async () => {
+  const { data } = await axiosInstance.get("/analytics/completion-rates");
+  return data;
+},
 };

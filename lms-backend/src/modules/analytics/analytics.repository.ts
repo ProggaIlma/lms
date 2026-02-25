@@ -23,7 +23,50 @@ export const AnalyticsRepository = {
       totalRevenue: revenue._sum.price ?? 0,
     };
   },
+// * completion rate per instructor
+getCompletionRates: async () => {
+  const instructors = await prisma.user.findMany({
+    where: { role: "INSTRUCTOR" },
+    select: {
+      id:   true,
+      name: true,
+      instructorCourses: {
+        where:  { isDeleted: false },
+        select: {
+          id:    true,
+          title: true,
+          enrollments: {
+            select: { status: true },
+          },
+        },
+      },
+    },
+  });
 
+  return instructors.map((instructor) => {
+    const totalEnrollments = instructor.instructorCourses.reduce(
+      (sum, course) => sum + course.enrollments.length, 0
+    );
+    const completedEnrollments = instructor.instructorCourses.reduce(
+      (sum, course) =>
+        sum + course.enrollments.filter((e) => e.status === "COMPLETED").length,
+      0
+    );
+
+    const completionRate = totalEnrollments > 0
+      ? Math.round((completedEnrollments / totalEnrollments) * 100)
+      : 0;
+
+    return {
+      instructorId:       instructor.id,
+      instructorName:     instructor.name,
+      totalCourses:       instructor.instructorCourses.length,
+      totalEnrollments,
+      completedEnrollments,
+      completionRate,
+    };
+  });
+},
   // * Enrollment growth for last 10 days
   getEnrollmentGrowth: async () => {
     const days = 10;
