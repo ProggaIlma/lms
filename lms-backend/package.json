@@ -16,12 +16,17 @@
     "start": "node dist/app.js"
   },
   "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "moduleNameMapper": {
-      "@middlewares/(.*)": "<rootDir>/src/middlewares/$1"
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "globals": {
+    "ts-jest": {
+      "tsconfig": "tsconfig.test.json"
     }
   },
+  "moduleNameMapper": {
+    "@middlewares/(.*)": "<rootDir>/src/middlewares/$1"
+  }
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
