@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { loginSchema, LoginFormData } from "@/utils/validators";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -45,6 +46,10 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, user, router]);
 
+// * add after the useEffect for redirect
+useEffect(() => {
+  if (error) toast.error(error);
+}, [error]);
   const onSubmit = (data: LoginFormData) => {
     dispatch(login(data));
   };

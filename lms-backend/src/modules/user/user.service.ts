@@ -1,48 +1,58 @@
+import bcrypt from "bcryptjs";
 import { UserRepository } from "./user.repository";
+import { CreateAdminDTO, UpdateUserDTO } from "./user.dto";
 import { AppError } from "../../utils/AppError";
 import { Role } from "@prisma/client";
 
-const userRepository = new UserRepository();
+export const UserService = {
+  getAllUsers: async (params?: { role?: Role; search?: string }) => {
+    return UserRepository.findAll(params);
+  },
 
-export class UserService {
-  async getAllUsers(params: {
-    search?: string;
-    role?: string;
-    page: number;
-    limit: number;
-  }) {
-    const { users, total } = await userRepository.findAll(params);
+  getUserById: async (id: string) => {
+    const user = await UserRepository.findById(id);
+    if (!user) throw new AppError("User not found", 404);
+    return user;
+  },
 
-    return {
-      users,
-      pagination: {
-        total,
-        page:       params.page,
-        limit:      params.limit,
-        totalPages: Math.ceil(total / params.limit),
-      },
-    };
-  }
+  createAdmin: async (data: CreateAdminDTO) => {
+    // ! check duplicate email
+    const existing = await UserRepository.findByEmail(data.email);
+    if (existing) throw new AppError("Email already in use", 400);
 
-  async toggleUserActive(
-    targetId: string,
-    isActive: boolean,
-    requestorRole: Role
-  ) {
-    const target = await userRepository.findById(targetId);
+    const hashed = await bcrypt.hash(data.password, 10);
+    return UserRepository.create({
+      name:     data.name,
+      email:    data.email,
+      password: hashed,
+      role:     Role.ADMIN,
+    });
+  },
 
-    if (!target) {
-      throw new AppError("User not found", 404);
+  updateUser: async (id: string, data: UpdateUserDTO) => {
+    return UserRepository.update(id, data);
+  },
+
+  // ! prevent super admin from being suspended
+  async toggleActive(id: string, isActive: boolean, requesterRole: Role, requesterId: string) {
+    const user = await UserRepository.findById(id);
+    if (!user) throw new AppError("User not found", 404);
+
+    // ! cannot modify your own account
+    if (id === requesterId) {
+      throw new AppError("Cannot suspend your own account", 403);
     }
 
-    // Admins cannot suspend other admins or super admins
-    if (
-      requestorRole === Role.ADMIN &&
-      (target.role === Role.ADMIN || target.role === Role.SUPER_ADMIN)
-    ) {
-      throw new AppError("You do not have permission to modify this user", 403);
+    // ! cannot modify super admin
+    if (user.role === Role.SUPER_ADMIN) {
+      throw new AppError("Cannot modify Super Admin account", 403);
     }
 
-    return userRepository.updateActive(targetId, isActive);
+    // ! admin cannot suspend other admins — only super admin can
+    if (user.role === Role.ADMIN && requesterRole !== Role.SUPER_ADMIN) {
+      throw new AppError("Only Super Admin can suspend Admin accounts", 403);
+    }
+
+    return UserRepository.update(id, { isActive });
   }
-}
+};

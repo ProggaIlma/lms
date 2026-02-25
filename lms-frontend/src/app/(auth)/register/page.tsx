@@ -1,5 +1,5 @@
 "use client";
-
+import toast from "react-hot-toast";
 import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -46,6 +46,9 @@ export default function RegisterPage() {
     dispatch(registerUser(payload));
   };
 
+useEffect(() => {
+  if (error) toast.error(error);
+}, [error]);
   return (
     <div className="bg-white rounded-2xl shadow-modal p-8">
       {/* Header */}

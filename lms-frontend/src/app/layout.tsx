@@ -26,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 color: "#f8fafc",
                 fontSize: "14px",
                 fontWeight: "500",
+                zIndex: 99999,
               },
               success: {
                 iconTheme: { primary: "#10b981", secondary: "#f8fafc" },
@@ -34,6 +35,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 iconTheme: { primary: "#ef4444", secondary: "#f8fafc" },
               },
             }}
+             containerStyle={{
+    zIndex: 99999, // ✅ add this
+  }}
           />
         </ReduxProvider>
       </body>

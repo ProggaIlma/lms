@@ -1,73 +1,89 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient, Role } from "@prisma/client";
+import { AppError } from "../../utils/AppError";
 
 const prisma = new PrismaClient();
 
-export class UserRepository {
-  async findAll(params: {
-    search?: string;
-    role?: string;
-    page: number;
-    limit: number;
-  }) {
-    const { search, role, page, limit } = params;
-    const skip = (page - 1) * limit;
+// * shared select — never expose password
+const userSelect = {
+  id:        true,
+  name:      true,
+  email:     true,
+  role:      true,
+  isActive:  true,
+  createdAt: true,
+};
 
-    const where: Prisma.UserWhereInput = {
-      ...(search && {
+export const UserRepository = {
+findAll: async (params?: {
+    role?:   Role;
+    search?: string;
+    page?:   number;
+    limit?:  number;
+  }) => {
+    const page  = params?.page  ?? 1;
+    const limit = params?.limit ?? 10;
+    const skip  = (page - 1) * limit;
+
+    const where = {
+      ...(params?.role   && { role: params.role }),
+      ...(params?.search && {
         OR: [
-          { name:  { contains: search, mode: "insensitive" } },
-          { email: { contains: search, mode: "insensitive" } },
+          { name:  { contains: params.search, mode: "insensitive" as const } },
+          { email: { contains: params.search, mode: "insensitive" as const } },
         ],
       }),
-      ...(role && { role: role as any }),
     };
 
     const [total, users] = await prisma.$transaction([
       prisma.user.count({ where }),
       prisma.user.findMany({
         where,
-        skip,
-        take: limit,
+        select:  userSelect,
         orderBy: { createdAt: "desc" },
-        select: {
-          id:        true,
-          name:      true,
-          email:     true,
-          role:      true,
-          isActive:  true,
-          createdAt: true,
-        },
+        skip,
+        take:    limit,
       }),
     ]);
 
-    return { users, total };
-  }
-
-  async findById(id: string) {
-    return prisma.user.findUnique({
-      where: { id },
-      select: {
-        id:        true,
-        name:      true,
-        email:     true,
-        role:      true,
-        isActive:  true,
-        createdAt: true,
+    return {
+      data:users,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
-    });
-  }
+    };
+  },
 
-  async updateActive(id: string, isActive: boolean) {
+  findById: async (id: string) => {
+    return prisma.user.findUnique({ where: { id }, select: userSelect });
+  },
+
+  findByEmail: async (email: string) => {
+    return prisma.user.findUnique({ where: { email } });
+  },
+
+  create: async (data: {
+    name:     string;
+    email:    string;
+    password: string;
+    role:     Role;
+  }) => {
+    return prisma.user.create({
+      data,
+      select: userSelect,
+    });
+  },
+
+  update: async (id: string, data: { isActive?: boolean; role?: Role }) => {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) throw new AppError("User not found", 404);
+
     return prisma.user.update({
-      where: { id },
-      data:  { isActive },
-      select: {
-        id:       true,
-        name:     true,
-        email:    true,
-        role:     true,
-        isActive: true,
-      },
+      where:  { id },
+      data,
+      select: userSelect,
     });
-  }
-}
+  },
+};

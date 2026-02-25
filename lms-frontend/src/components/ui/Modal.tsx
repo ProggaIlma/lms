@@ -30,8 +30,8 @@ export default function Modal({ isOpen, onClose, title, children, size = "md" }:
   const sizes = { sm: "max-w-sm", md: "max-w-md", lg: "max-w-lg" };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
+  <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className={cn("relative bg-white rounded-2xl shadow-modal w-full", sizes[size])}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-surface-200">
           <h2 className="font-display font-bold text-surface-900">{title}</h2>
