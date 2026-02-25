@@ -1,16 +1,19 @@
 import { Response } from "express";
 import { LessonService } from "./lesson.service";
 import { AuthRequest } from "@middlewares/auth.middleware";
+import { createLessonSchema, updateLessonSchema } from "./lesson.dto";
+
 
 export const LessonController = {
   async create(req: AuthRequest, res: Response) {
   try {
-    const lesson = await LessonService.createLesson({ // ✅ only 1 argument
-      ...req.body,
-      courseId:    req.params.id,
-      createdById: req.user!.userId,
-      updatedById: req.user!.userId,
-    });
+   const data = createLessonSchema.parse({
+  ...req.body,
+  courseId:    req.params.id,
+  createdById: req.user!.userId,
+  updatedById: req.user!.userId,
+});
+const lesson = await LessonService.createLesson(data);
     res.status(201).json({ success: true, data: lesson });
   } catch (err: any) {
     res.status(400).json({ success: false, message: err.message });
@@ -19,13 +22,9 @@ export const LessonController = {
 
   async update(req: AuthRequest, res: Response) {
     try {
-      const lesson = await LessonService.updateLesson(
-        req.params.lessonId as string,       // ✅ lessonId from URL
-        { ...req.body, updatedById: req.user!.userId },
-        req.user!.role,
-        req.user!.userId
-      );
-      res.json({ success: true, data: lesson });
+      
+      const data = updateLessonSchema.parse({ ...req.body, updatedById: req.user!.userId });
+      res.json({ success: true, data: data });
     } catch (err: any) {
       res.status(400).json({ success: false, message: err.message });
     }
@@ -34,7 +33,7 @@ export const LessonController = {
   async delete(req: AuthRequest, res: Response) {
     try {
       await LessonService.deleteLesson(
-        req.params.lessonId as string,       // ✅ lessonId from URL
+        req.params.lessonId as string,      
         req.user!.role,
         req.user!.userId
       );
